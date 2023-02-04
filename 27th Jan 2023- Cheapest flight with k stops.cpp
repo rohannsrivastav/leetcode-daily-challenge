@@ -1,32 +1,34 @@
+
+// daily challenge 26th Jan 2023- cheapest flight with k stops
+
 class Solution {
 public:
-    bool ifVowel(char s){
-        if(s=='a' || s=='e' || s=='i' || s=='o' ||s=='u' ||s=='A' ||s=='E' || s=='I' ||s=='O' ||s=='U'){
-                return true;
-            }
-            return false;
+    int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+        vector<vector<pair<int, int>>> adj(n);
+        for (auto& e : flights) {
+            adj[e[0]].push_back({e[1], e[2]});
         }
-    string reverseVowels(string s) {
-        int i=0;
-        int j=s.size();
-        while(i<j){
-            if(ifVowel(s[i]) && ifVowel(s[j])){
-                swap(s[i],s[j]);
-                i++;
-                j--;
-            }
-            else if(ifVowel(s[i])==true && ifVowel(s[j])==false){
-                j--;
-            }
-            else if(ifVowel(s[i])==false && ifVowel(s[j])==true){
-                i++;
-            }
-            else if(ifVowel(s[i])==false && ifVowel(s[j])==false){
-                i++;
-                j--;
-            }
-        }
-         return s;
+        vector<int> dist(n, numeric_limits<int>::max());
+        queue<pair<int, int>> q;
+        q.push({src, 0});
+        int stops = 0;
 
+        while (stops <= k && !q.empty()) {
+            int sz = q.size();
+            // Iterate on current level.
+            while (sz--) {
+                auto [node, distance] = q.front();
+                q.pop();
+                // Iterate over neighbors of popped node.
+                for (auto& [neighbour, price] : adj[node]) {
+                    if (price + distance >= dist[neighbour]) continue;
+                    dist[neighbour] = price + distance;
+                    q.push({neighbour, dist[neighbour]});
+                }
+            }
+            stops++;
+        }
+        return dist[dst] == numeric_limits<int>::max() ? -1 : dist[dst];
     }
 };
+
